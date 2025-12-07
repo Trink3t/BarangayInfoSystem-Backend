@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model BarangaySecretary {
+  id           BigInt        @id @default(autoincrement())
+  first_name   String        @db.VarChar(100)
+  middle_name  String?       @db.VarChar(100)
+  last_name    String        @db.VarChar(100)
+  username     String        @db.VarChar(50)
+  password     String        @db.LongText
+  email        String        @unique @db.VarChar(100)
+  appointments Appointment[]
+
+  @@map("barangay_secretaries")
+}
+
+model Resident {
+  id             BigInt        @id @default(autoincrement())
+  first_name     String        @db.VarChar(100)
+  middle_name    String?       @db.VarChar(100)
+  last_name      String        @db.VarChar(100)
+  address        String        @db.LongText
+  contact_number String        @db.VarChar(15)
+  sex            Sex
+  appointments   Appointment[]
+
+  @@map("residents")
+}
+
+model Service {
+  id           BigInt        @id @default(autoincrement())
+  name         String        @db.VarChar(100)
+  description  String?       @db.LongText
+  appointments Appointment[]
+
+  @@map("services")
+}
+
+model ActivityLog {
+  id          BigInt   @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String?  @db.LongText
+  created_at  DateTime @default(now())
+
+  @@map("activity_logs")
+}
+
+model Appointment {
+  id                   BigInt    @id @default(autoincrement())
+  resident_id          BigInt?
+  service_id           BigInt?
+  appointment_datetime DateTime
+  created_at           DateTime  @default(now())
+  processed_by         BigInt?
+
+  processed BarangaySecretary? @relation(fields: [processed_by], references: [id], onDelete: SetNull)
+  resident  Resident?          @relation(fields: [resident_id], references: [id], onDelete: Cascade)
+  service   Service?           @relation(fields: [service_id], references: [id], onDelete: Cascade)
+
+  @@index([processed_by], map: "appointments_processed_by_fkey")
+  @@index([resident_id], map: "appointments_resident_id_fkey")
+  @@index([service_id], map: "appointments_service_id_fkey")
+  @@map("appointments")
+}
