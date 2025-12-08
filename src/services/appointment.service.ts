@@ -1,4 +1,3 @@
-import type { Appointment } from "../../generated/prisma/browser";
 import { prisma } from "../prisma/client";
 import type { CreateAppointment, UpdateAppointment } from "../types/requests";
 
@@ -7,7 +6,7 @@ export class AppointmentService {
         return await prisma.appointment.findMany();
     }
 
-    async getAppointmentById(id: number) {
+    async getAppointmentById(id: string) {
         return await prisma.appointment.findUnique({
             where: {
                 id: id
@@ -21,7 +20,7 @@ export class AppointmentService {
         });
     }
 
-    async updateAppointment(id: number, appointment: UpdateAppointment) {
+    async updateAppointment(id: string, appointment: UpdateAppointment) {
         return await prisma.appointment.update({
             where: {
                 id: id
@@ -30,7 +29,7 @@ export class AppointmentService {
         });
     }
 
-    async deleteAppointment(id: number) {
+    async deleteAppointment(id: string) {
         return await prisma.appointment.delete({
             where: {
                 id: id

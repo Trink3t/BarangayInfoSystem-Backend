@@ -16,7 +16,7 @@ export class ServiceController {
     }
 
     async getById(req: Request, res: Response) {
-        await service.getServiceById(parseInt(req.params.id || "")).then((result) => {
+        await service.getServiceById(req.params.id || "").then((result) => {
             res.status(200).json({
                 message: "Successfully retrieved service",
                 data: result
@@ -28,7 +28,7 @@ export class ServiceController {
 
     async create(req: Request, res: Response) {
         await service.createService(req.body).then((result) => {
-            res.status(200).json({
+            res.status(201).json({
                 message: "Successfully created service",
                 data: result
             });
@@ -38,7 +38,7 @@ export class ServiceController {
     }
 
     async update(req: Request, res: Response) {
-        await service.updateService(parseInt(req.params.id || ""), req.body).then((result) => {
+        await service.updateService(req.params.id || "", req.body).then((result) => {
             res.status(200).json({
                 message: "Successfully updated service",
                 data: result
@@ -49,7 +49,7 @@ export class ServiceController {
     }
 
     async delete(req: Request, res: Response) {
-        await service.deleteService(parseInt(req.params.id || "")).then((result) => {
+        await service.deleteService(req.params.id || "").then((result) => {
             res.status(200).json({
                 message: "Successfully deleted service",
                 data: result

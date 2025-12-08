@@ -1,4 +1,3 @@
-import type { BarangaySecretary } from "../../generated/prisma/client";
 import { prisma } from "../prisma/client";
 import type { CreateBarangaySecretary, UpdateBarangaySecretary } from "../types/requests";
 
@@ -7,7 +6,7 @@ export class BarangaySecretaryService {
         return await prisma.barangaySecretary.findMany();
     }
 
-    async getBarangaySecretaryById(id: number) {
+    async getBarangaySecretaryById(id: string) {
         return await prisma.barangaySecretary.findUnique({
             where: {
                 id: id
@@ -21,7 +20,7 @@ export class BarangaySecretaryService {
         });
     }
 
-    async updateBarangaySecretary(id: number, barangaySecretary: UpdateBarangaySecretary) {
+    async updateBarangaySecretary(id: string, barangaySecretary: UpdateBarangaySecretary) {
         return await prisma.barangaySecretary.update({
             where: {
                 id: id
@@ -30,11 +29,15 @@ export class BarangaySecretaryService {
         });
     }
 
-    async deleteBarangaySecretary(id: number) {
+    async deleteBarangaySecretary(id: string) {
         return await prisma.barangaySecretary.delete({
             where: {
                 id: id
             }
         });
+    }
+
+    async getActivityLogs() {
+        return await prisma.activityLog.findMany();
     }
 }

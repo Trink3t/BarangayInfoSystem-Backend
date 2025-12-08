@@ -10,13 +10,33 @@ export class AuthService {
         return await barangaySecretaryService.createBarangaySecretary(createBarangaySecretary);
     }
 
-    async emailExists(email: string) {
-        const res =await prisma.barangaySecretary.findUnique({
+    async getByEmail(email: string) {
+        const res = await prisma.barangaySecretary.findUnique({
             where: {
                 email: email
             }
         });
 
-        return res !== null
+        if (!res) {
+            return false;
+        }
+
+        return res;
     }
+
+    async getByUsername(username: string) {
+        const res = await prisma.barangaySecretary.findUnique({
+            where: {
+                username: username
+            }
+        });
+
+
+        if (!res) {
+            return false;
+        }
+
+        return res;
+    }
+
 }

@@ -1,7 +1,7 @@
 import type { CreateBarangaySecretary } from "./BarangaySecretary"
 
 export type LoginUser = {
-    email: string,
+    username: string,
     password: string
 }
 

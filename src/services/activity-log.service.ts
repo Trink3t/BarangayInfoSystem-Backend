@@ -1,4 +1,3 @@
-import type { ActivityLog } from "../../generated/prisma/browser";
 import { prisma } from "../prisma/client";
 import type { CreateActivityLog, UpdateActivityLog } from "../types/requests";
 
@@ -7,7 +6,7 @@ export class ActivityLogService {
         return await prisma.activityLog.findMany();
     }
 
-    async getActivityLogById(id: number) {
+    async getActivityLogById(id: string) {
         return await prisma.activityLog.findUnique({
             where: {
                 id: id
@@ -21,7 +20,7 @@ export class ActivityLogService {
         });
     }
 
-    async updateActivityLog(id: number, activityLog: UpdateActivityLog) {
+    async updateActivityLog(id: string, activityLog: UpdateActivityLog) {
         return await prisma.activityLog.update({
             where: {
                 id: id
@@ -30,7 +29,7 @@ export class ActivityLogService {
         });
     }
 
-    async deleteActivityLog(id: number) {
+    async deleteActivityLog(id: string) {
         return await prisma.activityLog.delete({
             where: {
                 id: id

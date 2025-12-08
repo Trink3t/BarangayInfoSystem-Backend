@@ -22,13 +22,13 @@ export class AppointmentController {
                 data: result
             });
         }).catch((error) => {
-            res.status(500).json(error);
+            res.status(404).json(error);
         })
     }
 
     async create(req: Request, res: Response) {
         await service.createAppointment(req.body).then((result) => {
-            res.status(200).json({
+            res.status(201).json({
                 message: "Successfully created appointment",
                 data: result
             });

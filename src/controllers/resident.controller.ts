@@ -16,7 +16,7 @@ export class ResidentController {
     }
 
     async getById(req: Request, res: Response) {
-        await service.getResidentById(parseInt(req.params.id || "")).then((result) => {
+        await service.getResidentById(req.params.id || "").then((result) => {
             res.status(200).json({
                 message: "Successfully retrieved resident",
                 data: result
@@ -28,7 +28,7 @@ export class ResidentController {
 
     async create(req: Request, res: Response) {
         await service.createResident(req.body).then((result) => {
-            res.status(200).json({
+            res.status(201).json({
                 message: "Successfully created resident",
                 data: result
             });
@@ -38,7 +38,7 @@ export class ResidentController {
     }
 
     async update(req: Request, res: Response) {
-        await service.updateResident(parseInt(req.params.id || ""), req.body).then((result) => {
+        await service.updateResident(req.params.id || "", req.body).then((result) => {
             res.status(200).json({
                 message: "Successfully updated resident",
                 data: result

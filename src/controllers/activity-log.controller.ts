@@ -16,19 +16,19 @@ export class ActivityLogController {
     }
 
     async getById(req: Request, res: Response) {
-        await service.getActivityLogById(parseInt(req.params.id || "")).then((result) => {
+        await service.getActivityLogById(req.params.id || "").then((result) => {
             res.status(200).json({
                 message: "Successfully retrieved activity log",
                 data: result
             });
         }).catch((error) => {
-            res.status(500).json(error);
+            res.status(404).json(error);
         })
     }
 
     async create(req: Request, res: Response) {
         await service.createActivityLog(req.body).then((result) => {
-            res.status(200).json({
+            res.status(201).json({
                 message: "Successfully created activity log",
                 data: result
             });
@@ -38,7 +38,7 @@ export class ActivityLogController {
     }
 
     async update(req: Request, res: Response) {
-        await service.updateActivityLog(parseInt(req.params.id || ""), req.body).then((result) => {
+        await service.updateActivityLog(req.params.id || "", req.body).then((result) => {
             res.status(200).json({
                 message: "Successfully updated activity log",
                 data: result
@@ -49,7 +49,7 @@ export class ActivityLogController {
     }
 
     async delete(req: Request, res: Response) {
-        await service.deleteActivityLog(parseInt(req.params.id || "")).then((result) => {
+        await service.deleteActivityLog(req.params.id || "").then((result) => {
             res.status(200).json({
                 message: "Successfully deleted activity log",
                 data: result

@@ -1,4 +1,3 @@
-import type { Service } from "../../generated/prisma/browser";
 import { prisma } from "../prisma/client";
 import type { CreateService, UpdateService } from "../types/requests";
 
@@ -7,7 +6,7 @@ export class ServiceService {
         return await prisma.service.findMany();
     }
 
-    async getServiceById(id: number) {
+    async getServiceById(id: string) {
         return await prisma.service.findUnique({
             where: {
                 id: id
@@ -21,7 +20,7 @@ export class ServiceService {
         });
     }
 
-    async updateService(id: number, service: UpdateService) {
+    async updateService(id: string, service: UpdateService) {
         return await prisma.service.update({
             where: {
                 id: id
@@ -30,7 +29,7 @@ export class ServiceService {
         });
     }
 
-    async deleteService(id: number) {
+    async deleteService(id: string) {
         return await prisma.service.delete({
             where: {
                 id: id

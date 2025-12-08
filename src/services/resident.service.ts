@@ -1,4 +1,3 @@
-import type { Resident } from "../../generated/prisma/browser";
 import { prisma } from "../prisma/client";
 import type { CreateResident, UpdateResident } from "../types/requests";
 
@@ -7,7 +6,7 @@ export class ResidentService {
         return await prisma.resident.findMany();
     }
 
-    async getResidentById(id: number) {
+    async getResidentById(id: string) {
         return await prisma.resident.findUnique({
             where: {
                 id: id
@@ -21,7 +20,7 @@ export class ResidentService {
         });
     }
 
-    async updateResident(id: number, resident: UpdateResident) {
+    async updateResident(id: string, resident: UpdateResident) {
         return await prisma.resident.update({
             where: {
                 id: id
@@ -30,7 +29,7 @@ export class ResidentService {
         });
     }
 
-    async deleteResident(id: number) {
+    async deleteResident(id: string) {
         return await prisma.resident.delete({
             where: {
                 id: id
