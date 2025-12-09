@@ -3,20 +3,27 @@ import type { CreateBarangaySecretary, UpdateBarangaySecretary } from "../types/
 
 export class BarangaySecretaryService {
     async getAllBarangaySecretaries() {
-        return await prisma.barangaySecretary.findMany();
+        return await prisma.barangaySecretary.findMany({
+            omit: {
+                password: true
+            }
+        });
     }
 
     async getBarangaySecretaryById(id: string) {
         return await prisma.barangaySecretary.findUnique({
             where: {
                 id: id
+            }, 
+            omit: {
+                password: true
             }
         });
     }
 
     async createBarangaySecretary(barangaySecretary: CreateBarangaySecretary) {
         return await prisma.barangaySecretary.create({
-            data: barangaySecretary
+            data: barangaySecretary,
         });
     }
 
@@ -25,7 +32,8 @@ export class BarangaySecretaryService {
             where: {
                 id: id
             },
-            data: barangaySecretary
+            data: barangaySecretary,
+            
         });
     }
 
