@@ -28,8 +28,9 @@ model BarangaySecretary {
   username     String        @unique @db.VarChar(50)
   password     String        @db.LongText
   email        String        @unique @db.VarChar(100)
+
   appointments Appointment[]
-  activityLogs ActivityLog[]
+  activity_logs ActivityLog[]
 
   @@map("barangay_secretaries")
 }
@@ -43,6 +44,7 @@ model Resident {
   birth_date     DateTime
   contact_number String        @db.VarChar(15)
   sex            Sex
+
   appointments   Appointment[]
 
   @@map("residents")
@@ -52,6 +54,7 @@ model Service {
   id           String        @id @default(uuid())
   name         String        @db.VarChar(100)
   description  String?       @db.LongText
+
   appointments Appointment[]
 
   @@map("services")
@@ -66,8 +69,8 @@ model ActivityLog {
 
   barangay_secretary    BarangaySecretary?  @relation(fields: [barangay_secretary_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@map("activity_logs")
   @@index([barangay_secretary_id], map: "activity_logs_barangay_secretary_id_fkey")
+  @@map("activity_logs")
 }
 
 model Appointment {
@@ -80,7 +83,7 @@ model Appointment {
   status               Status   @default(PROCESSING)
   remarks              String?  @db.LongText
 
-  processed BarangaySecretary? @relation(fields: [processed_by], references: [id], onDelete: SetNull)
+  processed BarangaySecretary? @relation(fields: [processed_by], references: [id], onDelete: Cascade)
   resident  Resident?          @relation(fields: [resident_id], references: [id], onDelete: Cascade)
   service   Service?           @relation(fields: [service_id], references: [id], onDelete: Cascade)
 
