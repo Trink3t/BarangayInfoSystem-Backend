@@ -8,22 +8,25 @@ const residentService = new ResidentService();
 const serviceService = new ServiceService();
 
 const updateAppointmentSchema = yup.object().shape({
-  resident_id: yup.string().nullable().optional().test("resident-exists", "Resident does not exist", async (resident_id) => {
+    resident_id: yup.string().nullable().optional().test("resident-exists", "Resident does not exist", async (resident_id) => {
         if (!resident_id) return true;
         const resident = await residentService.getResidentById(resident_id);
         return !!resident;
     }),
 
-  service_id: yup.string().nullable().optional().test("service-exists", "Service does not exist", async (service_id) => {
+    service_id: yup.string().nullable().optional().test("service-exists", "Service does not exist", async (service_id) => {
         if (!service_id) return true;
         const service = await serviceService.getServiceById(service_id);
         return !!service;
     }),
 
-  appointment_datetime: yup.string().nullable().optional().matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,"Appointment Date and Time must be in format YYYY-MM-DDTHH:mm").test("valid-datetime", "Appointment is invalid", (value) => {
+    appointment_datetime: yup.string().nullable().optional().matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,"Appointment Date and Time must be in format YYYY-MM-DDTHH:mm").test("valid-datetime", "Appointment is invalid", (value) => {
         if (!value) return true;
         return !isNaN(Date.parse(value));
     }),
+
+    status: yup.string().nullable().optional().oneOf(["PENDING", "CANCELLED", "DONE"], "Status must be one of PENDING, CANCELLED, DONE"),
+    remarks: yup.string().nullable().optional(),
 });
 
 

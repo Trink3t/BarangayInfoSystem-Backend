@@ -27,7 +27,9 @@ const createAppointmentSchema = yup.object().shape({
     appointment_datetime: yup.string().required("Appointment Date is required").matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Appointment Date and Time must be in format YYYY-MM-DDTHH:mm").test("valid-datetime", "Appointment is invalid", (value) => {
         if (!value) return false;
         return !isNaN(Date.parse(value!));
-    })
+    }),
+    status: yup.string().required("Status is required").oneOf(["PENDING", "CANCELLED", "DONE"], "Status must be one of PENDING, CANCELLED, DONE"),
+    remarks: yup.string().optional(),
 });
 
 export const validateCreateAppointment = async (req: Request, res: Response, next: NextFunction) => {

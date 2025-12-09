@@ -14,6 +14,12 @@ enum Sex {
   OTHER
 }
 
+enum Status {
+  PROCESSING
+  FAILED
+  DONE
+}
+
 model BarangaySecretary {
   id           String        @id @default(uuid())
   first_name   String        @db.VarChar(100)
@@ -71,6 +77,8 @@ model Appointment {
   appointment_datetime DateTime
   created_at           DateTime @default(now())
   processed_by         String?
+  status               Status   @default(PROCESSING)
+  remarks              String?  @db.LongText
 
   processed BarangaySecretary? @relation(fields: [processed_by], references: [id], onDelete: SetNull)
   resident  Resident?          @relation(fields: [resident_id], references: [id], onDelete: Cascade)
