@@ -4,8 +4,8 @@
 - [Overview](#overview)
 - [Technology Stack](#technology-stack)
 - [Getting Started](#getting-started)
-- [Database Setup](#database-setup)
 - [Environment Configuration](#environment-configuration)
+- [Database Setup](#database-setup)
 - [Running the Application](#running-the-application)
 - [API Endpoints](#api-endpoints)
 - [Authentication](#authentication)
@@ -21,26 +21,27 @@ The Barangay Information System Backend is a RESTful API built to manage baranga
 
 ### Key Features
 - 🔐 JWT-based authentication with HTTP-only cookies
-- 👥 Resident management
+- 👥 Resident management with search functionality
 - 📅 Appointment scheduling and tracking
 - 🏢 Service catalog management
 - 👔 Barangay secretary administration
 - 📝 Activity logging for audit trails
 - ✅ Request validation with Yup
+- 🔍 Search and pagination support
 - 🗄️ MySQL/MariaDB database with Prisma ORM
 
 ---
 
 ## Technology Stack
 
-- **Runtime**: Node.js (Bun or npm compatible)
+- **Runtime**: Node.js 18+ or Bun 1.3+
 - **Framework**: Express.js 5.x
-- **Database**: MySQL/MariaDB
+- **Database**: MySQL 8.0+ or MariaDB 10.5+
 - **ORM**: Prisma 7.x
 - **Authentication**: JWT (jsonwebtoken)
 - **Password Hashing**: bcryptjs
 - **Validation**: Yup
-- **Language**: TypeScript
+- **Language**: TypeScript 5.x
 
 ---
 
@@ -54,68 +55,37 @@ The Barangay Information System Backend is a RESTful API built to manage baranga
 
 ### Installation
 
-#### Using npm:
+1. **Clone the repository**
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd barangayinfosystem-backend
+```
 
-# Install dependencies
+2. **Install dependencies**
+```bash
 npm install
-
-# Install Prisma CLI globally (optional)
-npm install -g prisma
 ```
 
-#### Using Bun:
-```bash
-# Clone the repository
-git clone <repository-url>
-cd barangayinfosystem-backend
-
-# Install dependencies
-bun install
-```
-
----
-
-## Database Setup
-
-### 1. Create MySQL Database
-
-```sql
-CREATE DATABASE barangay_system;
-```
-
-### 2. Configure Database Connection
-
-Create a `.env` file in the project root (see [Environment Configuration](#environment-configuration))
-
-### 3. Run Migrations
-
-```bash
-# Using npm
-npx prisma migrate dev
-
-# Using Bun
-bunx prisma migrate dev
-```
-
-### 4. Generate Prisma Client
-
-```bash
-# Using npm
-npx prisma generate
-
-# Using Bun
-bunx prisma generate
-```
+The post-install script will automatically:
+- Create `.env` file from `.env.example` (if not exists)
+- Generate a secure JWT secret
+- Run Prisma client generation
 
 ---
 
 ## Environment Configuration
 
-Create a `.env` file in the project root with the following variables:
+### Step 1: Database Setup
+
+First, create your MySQL/MariaDB database:
+
+```sql
+CREATE DATABASE barangay_system;
+```
+
+### Step 2: Configure .env File
+
+The `.env` file is automatically created from `.env.example` during installation. Update it with your database credentials:
 
 ```env
 # Database Configuration
@@ -129,23 +99,63 @@ DB_NAME="barangay_system"
 # Server Configuration
 PORT=8000
 
-# JWT Configuration
-# Generate a secure secret: openssl rand -hex 64
+# JWT Configuration (auto-generated during npm install)
 JWT_SECRET="your_generated_jwt_secret_here"
 
 # Environment
 NODE_ENV="development"
 ```
 
-### Generating JWT Secret
+### Important Notes:
+- **DATABASE_URL**: Must follow the format: `mysql://username:password@host:port/database`
+- **JWT_SECRET**: Automatically generated during `npm install`. If you need to regenerate it:
+  ```bash
+  node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+  ```
+- **PORT**: Default is 8000. Change if port is already in use.
 
-Run this command to generate a secure JWT secret:
+---
+
+## Database Setup
+
+### Step 1: Run Migrations
+
+After configuring your `.env` file, run database migrations:
 
 ```bash
-openssl rand -hex 64
+npx prisma migrate dev
 ```
 
-Copy the output and paste it as your `JWT_SECRET` in the `.env` file.
+This will:
+- Create all database tables
+- Apply the schema from `prisma/schema.prisma`
+- Generate the Prisma client
+
+### Step 2: Verify Database
+
+You can verify your database setup using Prisma Studio:
+
+```bash
+npx prisma studio
+```
+
+This opens a GUI at `http://localhost:5555` where you can view and edit your database.
+
+### Common Migration Commands
+
+```bash
+# Create a new migration
+npx prisma migrate dev --name migration_name
+
+# Apply migrations in production
+npx prisma migrate deploy
+
+# Reset database (WARNING: Deletes all data)
+npx prisma migrate reset
+
+# Generate Prisma client only
+npx prisma generate
+```
 
 ---
 
@@ -153,36 +163,54 @@ Copy the output and paste it as your `JWT_SECRET` in the `.env` file.
 
 ### Development Mode
 
-#### Using npm:
+Start the development server with hot-reload:
+
 ```bash
-# Build TypeScript files
-npm run build
-
-# Run the application
-npm start
-
-# Or watch mode (if configured)
 npm run dev
-```
-
-#### Using Bun:
-```bash
-bun run dev
 ```
 
 The server will start on `http://localhost:8000` (or the PORT specified in `.env`)
 
+**Development mode features:**
+- Automatic restart on file changes (using nodemon)
+- TypeScript compilation on-the-fly (using tsx)
+- Detailed error messages
+- Query logging enabled
+
 ### Production Mode
 
+1. **Build the application**
 ```bash
-# Build the application
 npm run build
+```
 
-# Set environment
+2. **Set environment to production**
+```bash
 export NODE_ENV=production
+```
 
-# Start the server
+3. **Start the server**
+```bash
 npm start
+```
+
+### Troubleshooting Startup Issues
+
+**Issue: Port already in use**
+```bash
+# Change PORT in .env or kill the process
+lsof -i :8000
+kill -9 <PID>
+```
+
+**Issue: Database connection failed**
+- Verify MySQL/MariaDB is running
+- Check database credentials in `.env`
+- Ensure database exists: `CREATE DATABASE barangay_system;`
+
+**Issue: Prisma client not found**
+```bash
+npx prisma generate
 ```
 
 ---
@@ -192,6 +220,8 @@ npm start
 Base URL: `http://localhost:8000/api`
 
 ### Authentication Endpoints
+
+All authentication endpoints use JSON request/response format.
 
 #### POST `/api/auth/register`
 Register a new barangay secretary.
@@ -208,7 +238,15 @@ Register a new barangay secretary.
 }
 ```
 
-**Response (201):**
+**Validation Rules:**
+- `first_name`: Required
+- `last_name`: Required
+- `middle_name`: Optional
+- `username`: Required, must be unique
+- `email`: Required, must be valid email, must be unique
+- `password`: Required
+
+**Success Response (201):**
 ```json
 {
   "message": "Successfully registered barangay secretary",
@@ -216,11 +254,24 @@ Register a new barangay secretary.
     "id": "uuid-here",
     "first_name": "Juan",
     "last_name": "Dela Cruz",
+    "middle_name": "Santos",
     "username": "juandelacruz",
     "email": "juan@example.com"
   }
 }
 ```
+
+**Error Response (400):**
+```json
+{
+  "errors": {
+    "username": "Username already exists",
+    "email": "Must be a valid email"
+  }
+}
+```
+
+---
 
 #### POST `/api/auth/login`
 Login to the system.
@@ -233,7 +284,7 @@ Login to the system.
 }
 ```
 
-**Response (200):**
+**Success Response (200):**
 ```json
 {
   "message": "Successfully logged in",
@@ -243,22 +294,37 @@ Login to the system.
 }
 ```
 
-**Note:** Returns an HTTP-only cookie named `token` containing the JWT.
+**Note:** Sets an HTTP-only cookie named `token` containing the JWT.
+
+**Error Response (400):**
+```json
+{
+  "message": "Invalid credentials"
+}
+```
+
+---
 
 #### POST `/api/auth/logout`
-Logout from the system (requires authentication).
+Logout from the system.
 
-**Response (200):**
+**Authentication:** Required
+
+**Success Response (200):**
 ```json
 {
   "message": "Successfully logged out"
 }
 ```
 
-#### GET `/api/auth/user`
-Get current authenticated user (requires authentication).
+---
 
-**Response (200):**
+#### GET `/api/auth/user`
+Get current authenticated user information.
+
+**Authentication:** Required
+
+**Success Response (200):**
 ```json
 {
   "message": "Successfully fetched user",
@@ -280,9 +346,20 @@ Get current authenticated user (requires authentication).
 **All endpoints require authentication**
 
 #### GET `/api/barangay_secretaries`
-Get all barangay secretaries.
+Get all barangay secretaries with pagination and search.
 
-**Response (200):**
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `perPage` (optional): Items per page (default: 10)
+- `search` (optional): Search term
+- `fields[]` (optional): Fields to search in (e.g., `fields[]=first_name&fields[]=last_name`)
+
+**Example Request:**
+```
+GET /api/barangay_secretaries?page=1&perPage=10&search=Juan&fields[]=first_name&fields[]=last_name
+```
+
+**Success Response (200):**
 ```json
 {
   "message": "Successfully retrieved barangay secretaries",
@@ -299,11 +376,55 @@ Get all barangay secretaries.
 }
 ```
 
+---
+
 #### GET `/api/barangay_secretaries/:id`
 Get a specific barangay secretary by ID.
 
+**Success Response (200):**
+```json
+{
+  "message": "Successfully retrieved barangay secretary",
+  "data": {
+    "id": "uuid-here",
+    "first_name": "Juan",
+    "last_name": "Dela Cruz",
+    "middle_name": "Santos",
+    "username": "juandelacruz",
+    "email": "juan@example.com"
+  }
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "message": "Not found"
+}
+```
+
+---
+
 #### POST `/api/barangay_secretaries`
-Create a new barangay secretary (same request body as register).
+Create a new barangay secretary.
+
+**Request Body:** Same as registration
+
+**Success Response (201):**
+```json
+{
+  "message": "Successfully created barangay secretary",
+  "data": {
+    "id": "uuid-here",
+    "first_name": "Juan",
+    "last_name": "Dela Cruz",
+    "username": "juandelacruz",
+    "email": "juan@example.com"
+  }
+}
+```
+
+---
 
 #### PATCH/PUT `/api/barangay_secretaries/:id`
 Update a barangay secretary.
@@ -320,8 +441,40 @@ Update a barangay secretary.
 }
 ```
 
+**Success Response (200):**
+```json
+{
+  "message": "Successfully updated barangay secretary",
+  "data": {
+    "id": "uuid-here",
+    "first_name": "Juan",
+    "last_name": "Dela Cruz",
+    "username": "newusername",
+    "email": "newemail@example.com"
+  }
+}
+```
+
+---
+
 #### DELETE `/api/barangay_secretaries/:id`
-Delete a barangay secretary. **Note:** You cannot delete yourself.
+Delete a barangay secretary.
+
+**Note:** You cannot delete yourself.
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully deleted barangay secretary"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "message": "You cannot delete yourself"
+}
+```
 
 ---
 
@@ -330,9 +483,20 @@ Delete a barangay secretary. **Note:** You cannot delete yourself.
 **All endpoints require authentication**
 
 #### GET `/api/residents`
-Get all residents.
+Get all residents with pagination and search.
 
-**Response (200):**
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `perPage` (optional): Items per page (default: 10)
+- `search` (optional): Search term
+- `fields[]` (optional): Fields to search in
+
+**Example Request:**
+```
+GET /api/residents?page=1&perPage=10&search=Maria&fields[]=first_name&fields[]=last_name
+```
+
+**Success Response (200):**
 ```json
 {
   "message": "Successfully retrieved residents",
@@ -351,8 +515,29 @@ Get all residents.
 }
 ```
 
+---
+
 #### GET `/api/residents/:id`
 Get a specific resident by ID.
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully retrieved resident",
+  "data": {
+    "id": "uuid-here",
+    "first_name": "Maria",
+    "last_name": "Santos",
+    "middle_name": "Garcia",
+    "address": "123 Main St, Barangay Centro",
+    "birth_date": "1990-05-15T00:00:00.000Z",
+    "contact_number": "+639171234567",
+    "sex": "FEMALE"
+  }
+}
+```
+
+---
 
 #### POST `/api/residents`
 Create a new resident.
@@ -379,11 +564,67 @@ Create a new resident.
 - `contact_number`: Required, must start with +63, exactly 13 characters
 - `sex`: Required, must be "MALE" or "FEMALE"
 
+**Success Response (201):**
+```json
+{
+  "message": "Successfully created resident",
+  "data": {
+    "id": "uuid-here",
+    "first_name": "Maria",
+    "last_name": "Santos",
+    "address": "123 Main St",
+    "birth_date": "1990-05-15T00:00:00.000Z",
+    "contact_number": "+639171234567",
+    "sex": "FEMALE"
+  }
+}
+```
+
+---
+
 #### PATCH/PUT `/api/residents/:id`
-Update a resident (all fields optional).
+Update a resident.
+
+**Request Body (all fields optional):**
+```json
+{
+  "first_name": "Maria",
+  "last_name": "Santos",
+  "middle_name": "Garcia",
+  "address": "456 New Address",
+  "birth_date": "1990-05-15",
+  "contact_number": "+639171234567",
+  "sex": "FEMALE"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully updated resident",
+  "data": {
+    "id": "uuid-here",
+    "first_name": "Maria",
+    "last_name": "Santos",
+    "address": "456 New Address",
+    "birth_date": "1990-05-15T00:00:00.000Z",
+    "contact_number": "+639171234567",
+    "sex": "FEMALE"
+  }
+}
+```
+
+---
 
 #### DELETE `/api/residents/:id`
 Delete a resident.
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully deleted resident"
+}
+```
 
 ---
 
@@ -392,9 +633,15 @@ Delete a resident.
 **All endpoints require authentication**
 
 #### GET `/api/services`
-Get all services.
+Get all services with pagination and search.
 
-**Response (200):**
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `perPage` (optional): Items per page (default: 10)
+- `search` (optional): Search term
+- `fields[]` (optional): Fields to search in
+
+**Success Response (200):**
 ```json
 {
   "message": "Successfully retrieved services",
@@ -408,8 +655,24 @@ Get all services.
 }
 ```
 
+---
+
 #### GET `/api/services/:id`
 Get a specific service by ID.
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully retrieved service",
+  "data": {
+    "id": "uuid-here",
+    "name": "Barangay Clearance",
+    "description": "Certificate of residency and good moral character"
+  }
+}
+```
+
+---
 
 #### POST `/api/services`
 Create a new service.
@@ -422,11 +685,58 @@ Create a new service.
 }
 ```
 
+**Validation Rules:**
+- `name`: Required
+- `description`: Optional
+
+**Success Response (201):**
+```json
+{
+  "message": "Successfully created service",
+  "data": {
+    "id": "uuid-here",
+    "name": "Barangay Clearance",
+    "description": "Certificate of residency and good moral character"
+  }
+}
+```
+
+---
+
 #### PATCH/PUT `/api/services/:id`
-Update a service (all fields optional).
+Update a service.
+
+**Request Body (all fields optional):**
+```json
+{
+  "name": "Updated Service Name",
+  "description": "Updated description"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully updated service",
+  "data": {
+    "id": "uuid-here",
+    "name": "Updated Service Name",
+    "description": "Updated description"
+  }
+}
+```
+
+---
 
 #### DELETE `/api/services/:id`
 Delete a service.
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully deleted service"
+}
+```
 
 ---
 
@@ -435,9 +745,15 @@ Delete a service.
 **All endpoints require authentication**
 
 #### GET `/api/appointments`
-Get all appointments (ordered by appointment_datetime ascending).
+Get all appointments with pagination and search. Results are ordered by appointment_datetime (ascending).
 
-**Response (200):**
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `perPage` (optional): Items per page (default: 10)
+- `search` (optional): Search term
+- `fields[]` (optional): Fields to search in
+
+**Success Response (200):**
 ```json
 {
   "message": "Successfully retrieved appointments",
@@ -456,8 +772,29 @@ Get all appointments (ordered by appointment_datetime ascending).
 }
 ```
 
+---
+
 #### GET `/api/appointments/:id`
 Get a specific appointment by ID.
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully retrieved appointment",
+  "data": {
+    "id": "uuid-here",
+    "resident_id": "resident-uuid",
+    "service_id": "service-uuid",
+    "appointment_datetime": "2024-12-15T10:00:00.000Z",
+    "created_at": "2024-12-09T08:00:00.000Z",
+    "processed_by": "secretary-uuid",
+    "status": "PROCESSING",
+    "remarks": "Pending document submission"
+  }
+}
+```
+
+---
 
 #### POST `/api/appointments`
 Create a new appointment.
@@ -480,8 +817,26 @@ Create a new appointment.
 - `status`: Required, must be one of: "PROCESSING", "FAILED", "DONE"
 - `remarks`: Optional
 
+**Success Response (201):**
+```json
+{
+  "message": "Successfully created appointment",
+  "data": {
+    "id": "uuid-here",
+    "resident_id": "resident-uuid",
+    "service_id": "service-uuid",
+    "appointment_datetime": "2024-12-15T10:00:00.000Z",
+    "created_at": "2024-12-09T08:00:00.000Z",
+    "status": "PROCESSING",
+    "remarks": "Pending document submission"
+  }
+}
+```
+
+---
+
 #### PATCH/PUT `/api/appointments/:id`
-Update an appointment (all fields optional).
+Update an appointment.
 
 **Request Body (all fields optional):**
 ```json
@@ -494,8 +849,32 @@ Update an appointment (all fields optional).
 }
 ```
 
+**Success Response (200):**
+```json
+{
+  "message": "Successfully updated appointment",
+  "data": {
+    "id": "uuid-here",
+    "resident_id": "resident-uuid",
+    "service_id": "service-uuid",
+    "appointment_datetime": "2024-12-15T14:00:00.000Z",
+    "status": "DONE",
+    "remarks": "Completed"
+  }
+}
+```
+
+---
+
 #### DELETE `/api/appointments/:id`
 Delete an appointment.
+
+**Success Response (200):**
+```json
+{
+  "message": "Successfully deleted appointment"
+}
+```
 
 ---
 
@@ -537,10 +916,21 @@ fetch('http://localhost:8000/api/residents', {
 })
 ```
 
+#### Using Axios:
+```javascript
+import axios from 'axios';
+
+axios.defaults.withCredentials = true;
+
+axios.get('http://localhost:8000/api/residents')
+  .then(response => console.log(response.data))
+  .catch(error => console.error(error));
+```
+
 #### Using Postman:
 1. Send login request to `/api/auth/login`
 2. Cookie will be automatically stored
-3. Enable "Cookies" in Postman
+3. Enable "Cookies" in Postman settings
 4. Subsequent requests will include the cookie automatically
 
 #### Using cURL:
@@ -708,6 +1098,8 @@ barangayinfosystem-backend/
 ├── prisma/
 │   ├── schema.prisma          # Database schema
 │   └── migrations/            # Database migrations
+├── scripts/
+│   └── post-install.js        # Post-install setup script
 ├── src/
 │   ├── controllers/           # Request handlers
 │   │   ├── activity-log.controller.ts
@@ -749,12 +1141,14 @@ barangayinfosystem-backend/
 │   │   ├── hash.ts          # Password hashing
 │   │   ├── jwt.ts           # JWT utilities
 │   │   ├── logger.ts        # Activity logging
+│   │   ├── queryOptions.ts  # Query helper
 │   │   └── yup-validation.ts
 │   ├── app.ts               # Express app setup
 │   └── index.ts             # Entry point
 ├── .env                      # Environment variables
 ├── .env.example             # Environment template
 ├── package.json
+├── prisma.config.ts
 ├── tsconfig.json
 └── README.md
 ```
@@ -830,33 +1224,42 @@ Logs are stored in the `activity_logs` table with:
 - User ID (barangay_secretary_id)
 - Timestamp
 
+### Search and Pagination
+
+All list endpoints support search and pagination through query parameters:
+
+```typescript
+// Automatically handled in service layer
+import { queryOptions } from "../utils/queryOptions";
+
+async getAll(req: Request) {
+  return await prisma.model.findMany({
+    ...queryOptions(req)
+  });
+}
+```
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `perPage`: Items per page (default: 10)
+- `search`: Search term
+- `fields[]`: Fields to search (e.g., `fields[]=first_name&fields[]=last_name`)
+
 ### Database Migrations
 
 #### Create a new migration:
 ```bash
-# Using npm
 npx prisma migrate dev --name migration_name
-
-# Using Bun
-bunx prisma migrate dev --name migration_name
 ```
 
 #### Apply migrations in production:
 ```bash
-# Using npm
 npx prisma migrate deploy
-
-# Using Bun
-bunx prisma migrate deploy
 ```
 
 #### Reset database (development only):
 ```bash
-# Using npm
 npx prisma migrate reset
-
-# Using Bun
-bunx prisma migrate reset
 ```
 
 ### Prisma Studio (Database GUI)
@@ -864,11 +1267,7 @@ bunx prisma migrate reset
 View and edit data in the browser:
 
 ```bash
-# Using npm
 npx prisma studio
-
-# Using Bun
-bunx prisma studio
 ```
 
 Opens at: `http://localhost:5555`
@@ -877,27 +1276,32 @@ Opens at: `http://localhost:5555`
 
 ## CORS Configuration
 
-The API is configured to accept requests from `http://localhost:*` in development.
+The API is configured to accept requests from any origin in development with credentials support.
 
-To modify CORS settings, edit `src/index.ts`:
+Current configuration in `src/app.ts`:
 
 ```typescript
-app.use(cors({
-    origin: "http://localhost:*", // Change this
-    methods: ["GET", "POST", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept"]
-}))
+app.use(
+  cors({
+    origin: true, // Allows all origins in development
+    methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    credentials: true, // Important for cookies
+  })
+);
 ```
 
 For production, specify exact origins:
 
 ```typescript
-app.use(cors({
+app.use(
+  cors({
     origin: ["https://yourdomain.com", "https://www.yourdomain.com"],
     methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-    credentials: true // Important for cookies
-}))
+    credentials: true
+  })
+);
 ```
 
 ---
@@ -906,9 +1310,9 @@ app.use(cors({
 
 ### Using Postman
 
-1. Import the API endpoints
-2. Create an environment with `baseUrl = http://localhost:8000`
-3. Login via `/api/auth/login` to get the cookie
+1. Import the `BarangayCert.json` collection
+2. Create an environment with `BACKEND_URL = http://localhost:8000/api/`
+3. Login via `/auth/login` to get the cookie
 4. Test other endpoints (cookie will be automatically included)
 
 ### Using cURL Examples
@@ -955,6 +1359,11 @@ curl -b cookies.txt -X POST http://localhost:8000/api/residents \
   }'
 ```
 
+#### Search with Pagination:
+```bash
+curl -b cookies.txt "http://localhost:8000/api/residents?page=1&perPage=5&search=Maria&fields[]=first_name&fields[]=last_name"
+```
+
 ---
 
 ## Troubleshooting
@@ -967,10 +1376,11 @@ Error: Can't reach database server
 ```
 
 **Solutions:**
-- Verify MySQL/MariaDB is running
+- Verify MySQL/MariaDB is running: `systemctl status mysql` or `systemctl status mariadb`
 - Check `.env` database credentials
 - Ensure database exists: `CREATE DATABASE barangay_system;`
 - Check database port (default: 3306)
+- Test connection: `mysql -u username -p -h localhost`
 
 #### 2. Prisma Client Not Generated
 ```
@@ -980,8 +1390,6 @@ Error: Cannot find module '@prisma/client'
 **Solution:**
 ```bash
 npx prisma generate
-# or
-bunx prisma generate
 ```
 
 #### 3. JWT Secret Missing
@@ -990,10 +1398,11 @@ Error: JWT secret not configured
 ```
 
 **Solution:**
-Generate and add JWT_SECRET to `.env`:
+The JWT_SECRET should be auto-generated during `npm install`. If missing:
 ```bash
-openssl rand -hex 64
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
+Add the output to your `.env` file as `JWT_SECRET`
 
 #### 4. Port Already in Use
 ```
@@ -1029,8 +1438,21 @@ Access to fetch has been blocked by CORS policy
 
 **Solution:**
 - Ensure `credentials: 'include'` in fetch requests
-- Verify CORS configuration in `src/index.ts`
+- Verify CORS configuration in `src/app.ts`
 - Check origin matches allowed origins
+
+#### 7. Cookie Not Being Set
+```json
+{
+  "message": "Unauthenticated"
+}
+```
+
+**Solutions:**
+- Ensure `credentials: 'include'` in requests
+- Check browser allows third-party cookies
+- In production, ensure HTTPS is enabled for secure cookies
+- Verify cookie is being sent in browser DevTools → Network → Cookies
 
 ---
 
@@ -1057,8 +1479,11 @@ Access to fetch has been blocked by CORS policy
 # Install PM2
 npm install -g pm2
 
+# Build the application
+npm run build
+
 # Start application
-pm2 start npm --name "barangay-api" -- start
+pm2 start dist/index.js --name "barangay-api"
 
 # Setup auto-restart on reboot
 pm2 startup
@@ -1066,6 +1491,59 @@ pm2 save
 
 # Monitor
 pm2 monit
+
+# View logs
+pm2 logs barangay-api
+```
+
+### Example systemd Service
+
+Create `/etc/systemd/system/barangay-api.service`:
+
+```ini
+[Unit]
+Description=Barangay Information System API
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/barangay-api
+Environment="NODE_ENV=production"
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start:
+```bash
+sudo systemctl enable barangay-api
+sudo systemctl start barangay-api
+sudo systemctl status barangay-api
+```
+
+---
+
+## Quick Start Summary
+
+```bash
+# 1. Clone and install
+git clone <repository-url>
+cd barangayinfosystem-backend
+npm install
+
+# 2. Configure environment
+# Edit .env with your database credentials
+
+# 3. Setup database
+npx prisma migrate dev
+
+# 4. Start development server
+npm run dev
+
+# Server running at http://localhost:8000
 ```
 
 ---
@@ -1084,9 +1562,12 @@ For issues and questions:
 
 ## Changelog
 
-### Version 1.0.0 (Initial Release)
+### Version 1.0.0 (Current)
 - Authentication system with JWT
 - CRUD operations for all entities
 - Activity logging
 - Request validation
+- Search and pagination support
 - MySQL/MariaDB support with Prisma ORM
+- Automatic .env setup and JWT generation
+- Comprehensive API documentation
