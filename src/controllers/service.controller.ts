@@ -7,7 +7,7 @@ const service = new ServiceService();
 export class ServiceController {
     async getAll(req: Request, res: Response) {
         try {
-            const services = await service.getServices();
+            const services = await service.getServices(req);
             await logActivity("Retrieved all services", req.user.id);
             return res.status(200).json({
                 message: "Successfully retrieved services",

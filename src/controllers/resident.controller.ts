@@ -7,7 +7,7 @@ const service = new ResidentService();
 export class ResidentController {
     async getAll(req: Request, res: Response) {
         try {
-            const residents = await service.getResidents()
+            const residents = await service.getResidents(req)
             await logActivity("Retrieved all residents", req.user.id);
             return res.status(200).json({
                 message: "Successfully retrieved residents",

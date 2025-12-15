@@ -54,7 +54,7 @@ export class AuthController {
         const hashedPassword = await hashPassword(body.password);
         body.password = hashedPassword;
 
-        const response = service.register(body);
+        const response = await service.register(body);
 
         return res.status(201).json({
             message: "Successfully registered barangay secretary",

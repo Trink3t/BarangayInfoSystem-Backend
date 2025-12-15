@@ -1,9 +1,12 @@
+import { Request } from "express";
 import { prisma } from "../prisma/client";
 import type { CreateAppointment, UpdateAppointment } from "../types/requests";
+import { queryOptions } from "../utils/queryOptions";
 
 export class AppointmentService {
-    async getAppointments() {
+    async getAppointments(req?: Request) {
         return await prisma.appointment.findMany({
+            ...queryOptions(req),
             orderBy: {
                 appointment_datetime: "asc"
             }

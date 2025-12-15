@@ -1,9 +1,13 @@
+import { Request } from "express";
 import { prisma } from "../prisma/client";
 import type { CreateResident, UpdateResident } from "../types/requests";
+import { queryOptions } from "../utils/queryOptions";
 
 export class ResidentService {
-    async getResidents() {
-        return await prisma.resident.findMany();
+    async getResidents(req?: Request) {
+        return await prisma.resident.findMany({
+            ...queryOptions(req),
+        });
     }
 
     async getResidentById(id: string) {

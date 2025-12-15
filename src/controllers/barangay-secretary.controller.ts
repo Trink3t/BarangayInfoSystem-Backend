@@ -8,7 +8,8 @@ const service = new BarangaySecretaryService();
 export class BarangaySecretaryController {
     async getAll(req: Request, res: Response) {
         try {
-            const barangaySecretaries = await service.getAllBarangaySecretaries();
+            const barangaySecretaries = await service.getAllBarangaySecretaries(req);
+            console.log("QUERY: ", req.query)
             await logActivity("Retrieved all barangay secretaries", req.user.id);
             return res.status(200).json({
                 message: "Successfully retrieved barangay secretaries",

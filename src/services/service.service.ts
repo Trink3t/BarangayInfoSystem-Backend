@@ -1,9 +1,13 @@
+import { Request } from "express";
 import { prisma } from "../prisma/client";
 import type { CreateService, UpdateService } from "../types/requests";
+import { queryOptions } from "../utils/queryOptions";
 
 export class ServiceService {
-    async getServices() {
-        return await prisma.service.findMany();
+    async getServices(req?: Request) {
+        return await prisma.service.findMany({
+            ...queryOptions(req)
+        });
     }
 
     async getServiceById(id: string) {

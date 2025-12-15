@@ -7,7 +7,7 @@ const service = new AppointmentService();
 export class AppointmentController {
     async getAll(req: Request, res: Response) {
         try {
-            const appointments = await service.getAppointments()
+            const appointments = await service.getAppointments(req)
 
             await logActivity("Retrieved all appointments", req.user.id);
             return res.status(200).json({

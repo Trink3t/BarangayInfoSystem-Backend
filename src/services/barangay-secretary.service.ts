@@ -1,9 +1,12 @@
+import { Request } from "express";
 import { prisma } from "../prisma/client";
 import type { CreateBarangaySecretary, UpdateBarangaySecretary } from "../types/requests";
+import { queryOptions } from "../utils/queryOptions";
 
 export class BarangaySecretaryService {
-    async getAllBarangaySecretaries() {
+    async getAllBarangaySecretaries(req?: Request) {
         return await prisma.barangaySecretary.findMany({
+            ...queryOptions(req),
             omit: {
                 password: true
             }

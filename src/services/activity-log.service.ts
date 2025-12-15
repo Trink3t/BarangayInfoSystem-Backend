@@ -1,9 +1,16 @@
+import { Request } from "express";
 import { prisma } from "../prisma/client";
 import type { CreateActivityLog, UpdateActivityLog } from "../types/requests";
+import { queryOptions } from "../utils/queryOptions";
 
 export class ActivityLogService {
-    async getActivityLogs() {
-        return await prisma.activityLog.findMany();
+    async getActivityLogs(req?: Request) {
+        return await prisma.activityLog.findMany({
+            ...queryOptions(req),
+            orderBy: {
+                created_at: "desc"
+            }
+        });
     }
 
     async getActivityLogById(id: string) {
